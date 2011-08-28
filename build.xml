@@ -1,0 +1,84 @@
+
+<project name="HadoopCopier" default="build" basedir=".">
+
+	<!-- Basic Properties -->
+	<property name="build.dir" value="build"/>
+	<property name="src.dir" value="src" />
+	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="dist.dir" value="${build.dir}/dist"/>
+	<property name="dist.HadoopCopier.dir" value="${dist.dir}/HadoopCopier"/>
+	<property name="dist.lib.dir" value="${dist.dir}/lib"/>
+	<property name="dist.conf.dir" value="${dist.dir}/conf"/>
+	<property name="doc.dir" value="docs"/>
+	<property name="releases.dir" value="releases"/>
+	<!-- Maintaining the version as 1A0 till development goes on -->
+	<property name="build.version" value="1A0" />
+	<property name="dist" value="${project.name}_${build.version}" />
+
+
+	<property name="mf" value="HadoopCopier"/>
+
+	<path id="class.path">
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement location="${classes.dir}" />
+	</path>
+
+	<!-- Initialing and creating dirs -->
+	<target name="init">
+		<mkdir dir="${classes.dir}">
+		</mkdir>
+		<mkdir dir="${dist.dir}">
+		</mkdir>
+		<mkdir dir="${dist.HadoopCopier.dir}">
+		</mkdir>
+		<mkdir dir="${releases.dir}">
+		</mkdir>
+	</target>
+
+	<!-- Clean the class dirs -->
+	<target name="clean">
+		<delete dir="${classes.dir}"/>
+		<delete dir="${dist.HadoopCopier.dir}"/>
+		<delete dir="${dist.dir}"/>
+		<delete dir="${releases.dir}"/>
+	</target>
+
+	<!-- Compile targets -->
+	<target name="compile" depends="clean, init">
+		<javac destdir="${classes.dir}" source="1.5" debug="true" debuglevel="lines,vars,source" >
+			<src path="${src.dir}"/>
+			<exclude name="**/_*.java"/>
+			<classpath refid="class.path"/>
+		</javac>
+	</target>
+
+	<target name="build" depends="make_jar,  release_HadoopCopier">
+		<echo message="Build Completed"/>
+	</target>
+
+	<target name="make_jar" depends="compile">
+		<jar basedir="${classes.dir}" jarfile="${dist.HadoopCopier.dir}/${mf}-${build.version}.jar">
+		</jar>
+
+	</target>
+
+	<target name="release_HadoopCopier" depends="make_jar">
+		<delete dir="${release.dir}" />
+		
+		<mkdir dir="${releases.dir}"/>
+		<mkdir dir="${releases.dir}/HadoopCopier_${build.version}"/>
+		<mkdir dir="${releases.dir}/HadoopCopier$_{build.version}/lib"/>
+		<mkdir dir="${releases.dir}/HadoopCopier_${build.version}/conf"/>
+		<copy todir="${releases.dir}/HadoopCopier_${build.version}/lib">
+			<fileset dir="lib">
+				<include name="**/**/*.jar"/>
+			</fileset>
+			<fileset dir="${dist.HadoopCopier.dir}">
+				<include name="**/*.jar"/>
+			</fileset>
+		</copy>
+		<tar destfile="${releases.dir}/HadoopCopier_${build.version}.tar" basedir="${releases.dir}/HadoopCopier_${build.version}"/>
+	</target>
+</project>
